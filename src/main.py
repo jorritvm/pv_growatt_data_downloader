@@ -6,6 +6,7 @@ import tempfile
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
+import shutil
 
 # setup
 load_dotenv()
@@ -129,6 +130,18 @@ def download_files_from_online_portal(halt_at):
     return temp_directory
 
 
+def copy_back_monthly_excel_reports(source_folder, target_folder):
+    # List all files in the source folder
+    files = os.listdir(source_folder)
+
+    for file in files:
+        source_path = os.path.join(source_folder, file)
+        target_path = os.path.join(target_folder, file)
+
+        # Copy the file from source to target, overwriting if exists
+        print(f"Writing {target_path}")
+        shutil.copy2(source_path, target_path)
+
 def main():
     # step 1: find the most recent file where we have to restart downloading
     halt_at = find_starting_point_for_download()
@@ -138,7 +151,7 @@ def main():
     print("step 2 done, folder: " + temp_dir)
 
     # step 3: copy temp files to excel folder
-
+    copy_back_monthly_excel_reports(temp_dir, EXCEL_FILES_LOCATION)
 
 if __name__ == "__main__":
     main()
