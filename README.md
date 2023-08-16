@@ -11,13 +11,17 @@ download data from growatt web portal using selenium and parse it into sqlite
 ## How to run
 * clone the repo
 * python -m venv venv
-<!-- * pip -r requirements.txt -->
-* configure in main.py
+* pip -r requirements.txt 
+* make sure you have your webportal secret set up in a .env file, use the .env.template as basis
+* configure in constants.py
 * run main.py
 
 ## Project learnings
 ### Python
 * tempdir is a nice way of creating a temporary directory with full write access
+
+### Pandas
+* openpyxl does not handle .xls, for that you need xlrd
   
 ### Selenium
 * Selenium no longer requires a chromiumdriver
@@ -25,8 +29,10 @@ download data from growatt web portal using selenium and parse it into sqlite
 * Make sure to add some time.sleep() because if you go to fast, you also get 'not interactable' bug when the elements are not yet loaded in the browser.
 
 ### SQLalchemy
-
+* in CORE no Session object is required
+* you can create_all in the declarative base without worrying about truncating existing tables
+* SQLalchemy is finicky about its data types, especially dates!
 
 
 ## Author
-<!-- Jorrit Vander Mynsbrugge -->
+Jorrit Vander Mynsbrugge
