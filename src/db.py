@@ -1,41 +1,104 @@
+import os
+import re
 import pandas as pd
-from sqlalchemy import create_engine, Column, Float, Date
-from sqlalchemy.orm import sessionmaker, declarative_base
+import xlrd
+from dateutil.parser import parse
+from sqlalchemy import create_engine, select, text, Column, Integer, Float, Date
+from sqlalchemy.orm import declarative_base
 import constants as C
 
 
 def parse_files_to_dataframe(new_files):
-    # todo : better implementation
-    data = {
-        'date': ['2023-08-05', '2023-08-06', '2023-08-07'],
-        'generation': [10000.5, 10500.2, 20000.7]
-    }
-    df = pd.DataFrame(data)
-    df['date'] = pd.to_datetime(df['date'])
+    """
+    :param new_files: list of absolute file paths to parse
+    :return:
+        df.dtypes
+        year              int64
+        month             int64
+        day               int64
+        solar           float64
+        date     datetime64[ns]
+        dtype: object
+    """
+
+    all_data_list = []
+
+    for fpfn in new_files:
+        # year & month
+        matches = re.search(r"(\d{4}).*?(\d{1,2})\.xls", os.path.basename(fpfn))
+        yyyy = int(matches.group(1))
+        mm = int(matches.group(2))
+
+        # read daily data file
+        wb = xlrd.open_workbook(fpfn)
+        ws = wb.sheet_by_index(0)
+        data = [ws.row_values(rowx) for rowx in range(16, 18)]
+        columns = data[0][3:37]  # Assuming the data starts from column D and ends at AL
+        values = data[1][3:37]
+
+        # cleanup
+        last_data_col = columns.index("Total(kWh)")
+        columns = [int(x) for x in columns[:last_data_col]]
+        values = [float(x) if x != '' else 0 for x in values[:last_data_col]]
+
+        dt = pd.DataFrame({'day': columns,
+                           'solar': values})
+        dt["year"] = yyyy
+        dt["month"] = mm
+        dt = dt[['year', 'month', 'day', 'solar']]
+
+        all_data_list.append(dt)
+
+    df = pd.concat(all_data_list, ignore_index=True, axis=0)
+    df["date"] = df.apply(lambda row: parse(f"{str(int(row['year']))}-{str(int(row['month']))}-{str(int(row['day']))}"), axis=1)
+
+    df.sort_values("date", inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
     return df
 
 
 def write_df_to_db(df):
-    ## todo: rewrite this using a staging table
+    """
+    parses a df into the database, overwriting values with existing primary key and appending new values
+    :param df:
+    :return: /
+    """
 
     # Create an SQLite database engine
     engine = create_engine(f'sqlite:///{C.DATABASE_LOCATION}', echo=True)
+    connection = engine.connect()
+
     # Define a data model
     Base = declarative_base()
 
-    class GenerationData(Base):
-        __tablename__ = 'generation_data'
+    class SolarGeneration(Base):
+        __tablename__ = 'solar_generation'
 
+        year = Column(Integer)
+        month = Column(Integer)
+        day = Column(Integer)
+        solar = Column(Float)
         date = Column(Date, primary_key=True)
-        generation = Column(Float)
 
     # Create the table if it doesn't exist
     Base.metadata.create_all(engine)
-    # Create a session
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    # Write the DataFrame to the database, overwriting if primary key exists
-    df.to_sql('generation_data', con=engine, if_exists='append', index=False)
-    # Close the session
-    session.close()
+
+    # load into db, can't use df.to_sql because it overwrites all or appends all ...
+    for index, row in df.iterrows():
+        update_sql = text(
+            "INSERT OR REPLACE INTO solar_generation (year, month, day, solar, date) "
+            "VALUES (:year, :month, :day, :solar, :date)"
+        )
+        connection.execute(update_sql,
+                           {'year': row['year'],
+                            'month': row['month'],
+                            'day': row['day'],
+                            'solar': row['solar'],
+                            'date': row['date'].date()})
+
+    # Commit the changes
+    connection.commit()
+
+    # Close the connection
+    connection.close()

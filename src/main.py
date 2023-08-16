@@ -6,9 +6,11 @@ from db import parse_files_to_dataframe, write_df_to_db
 def main():
     print("Step 1: find the most recent file where we have to restart downloading...")
     halt_at = find_starting_point_for_download()
+    print(halt_at)
 
     print("Step 2: fetch from web portal using selenium...")
     temp_dir = download_files_from_online_portal(halt_at)
+    print(temp_dir)
 
     print("Step 3: copy temp files to excel folder...")
     new_files = copy_back_monthly_excel_reports(temp_dir)
