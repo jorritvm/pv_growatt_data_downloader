@@ -3,8 +3,8 @@ import re
 import pandas as pd
 import xlrd
 from dateutil.parser import parse
-from sqlalchemy import create_engine, select, text, Column, Integer, Float, Date
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import create_engine, text
+from schema import tbl_solar
 import constants as C
 
 
@@ -67,24 +67,9 @@ def write_df_to_db(df):
 
     # Create an SQLite database engine
     engine = create_engine(f'sqlite:///{C.DATABASE_LOCATION}', echo=True)
-    connection = engine.connect()
-
-    # Define a data model
-    Base = declarative_base()
-
-    class SolarGeneration(Base):
-        __tablename__ = 'solar_generation'
-
-        year = Column(Integer)
-        month = Column(Integer)
-        day = Column(Integer)
-        solar = Column(Float)
-        date = Column(Date, primary_key=True)
-
-    # Create the table if it doesn't exist
-    Base.metadata.create_all(engine)
 
     # load into db, can't use df.to_sql because it overwrites all or appends all ...
+    connection = engine.connect()
     for index, row in df.iterrows():
         update_sql = text(
             "INSERT OR REPLACE INTO solar_generation (year, month, day, solar, date) "
@@ -97,8 +82,5 @@ def write_df_to_db(df):
                             'solar': row['solar'],
                             'date': row['date'].date()})
 
-    # Commit the changes
     connection.commit()
-
-    # Close the connection
     connection.close()
