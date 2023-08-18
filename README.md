@@ -1,20 +1,33 @@
 # pv_growatt_data_downloader
 download data from growatt web portal using selenium and parse it into sqlite
 
-## Data process
+## Data pipeline
 1. Look into your excel file dump folder what the latest file is you have downloaded. Chances are this 'monthly report' is incomplete so it will be overwritten.
 2. Open Selenium and browse to the portal to automatically grab all monthly reports between the current month and the one found in step 1.
 3. Transfer these monthly reports from the temp storage into your excel file dump folder.
 4. Parse these files to extract the clean data.
 5. Import the data into the designated DB.
 
-## How to run
+## How to deploy
 * clone the repo
 * python -m venv venv
 * pip -r requirements.txt 
 * make sure you have your webportal secret set up in a .env file, use the .env.template as basis
 * configure in constants.py
-* run main.py
+
+## How to run the pipeline
+* navigate to src/
+* activate the venv
+* run ```python main.py```
+
+## How to run the visualisation app
+* navigate to src/
+* activate the venv
+* run ```shiny run --port 9999 --reload .\app.py```
+
+## Screenshot
+[<img src="doc/screenshot/viz_app.png" width="300"/>](doc/screenshot/viz_app.png)
+
 
 ## Project learnings
 ### Python
@@ -39,8 +52,9 @@ download data from growatt web portal using selenium and parse it into sqlite
   1. using pure SQL defined by the text() function (to prevent sql injection!)
   2. using select() update() insert() delete() wrappers
 
-
-
+### Shiny for python
+* Interesting read on difference between R and Python: https://shiny.posit.co/py/docs/comp-r-shiny.html
+* Many docs online refer to R, which is annoying.
 
 ## Author
 Jorrit Vander Mynsbrugge
