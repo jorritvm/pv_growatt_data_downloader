@@ -4,7 +4,7 @@ import pandas as pd
 import xlrd
 from dateutil.parser import parse
 from sqlalchemy import create_engine, text
-from schema import tbl_solar
+from schema import engine, tbl_solar
 import constants as C
 
 
@@ -64,9 +64,6 @@ def write_df_to_db(df):
     :param df:
     :return: /
     """
-
-    # Create an SQLite database engine
-    engine = create_engine(f'sqlite:///{C.DATABASE_LOCATION}', echo=True)
 
     # load into db, can't use df.to_sql because it overwrites all or appends all ...
     connection = engine.connect()
