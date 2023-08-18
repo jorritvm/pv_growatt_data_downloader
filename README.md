@@ -30,8 +30,16 @@ download data from growatt web portal using selenium and parse it into sqlite
 
 ### SQLalchemy
 * in CORE no Session object is required
-* you can create_all in the declarative base without worrying about truncating existing tables
+* it's good to have a schema definition file, but for real DB schema management you need a data migration tool like alembic.
 * SQLalchemy is finicky about its data types, especially dates!
+* there are two ways of doing SQL DDL: 
+  1. using CORE concepts like MetaData and Table, insantiate the Table class and pass it a metadata object constructor argument along with column arguments. 
+  2. using ORM concepts like declarativebase. you can create_all in the declarative base without worrying about truncating existing tables, this throws errors in CORE 
+* there are two ways of doing SQL DQL:
+  1. using pure SQL defined by the text() function (to prevent sql injection!)
+  2. using select() update() insert() delete() wrappers
+
+
 
 
 ## Author
