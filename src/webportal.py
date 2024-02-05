@@ -59,20 +59,20 @@ def download_files_from_online_portal(halt_at):
         print(f"Downloading {current_page}...")
 
         # export + download button
-        export_btn = driver.find_element(By.XPATH,
-                                         '//*[@id="div_pageContent"]/div[3]/div/div[2]/div[1]/div/div[2]/div[1]/div[2]/div/div/div/input')
+        export_btn = driver.find_element(By.XPATH, '//*[@id="div_pageContent"]/div[4]/div/div[2]/div[1]/div/div[2]/div[1]/div[2]/div')
+                                         #          '//*[@id="div_pageContent"]/div[3]/div/div[2]/div[1]/div/div[2]/div[1]/div[2]/div/div/div/input')
 
         export_btn.click()
         time.sleep(1)
 
         download_btn = driver.find_element(By.XPATH,
-                                           '//*[@id="div_pageContent"]/div[3]/div/div[2]/div[1]/div/div[2]/div[1]/div[2]/div/div/dl/dd[2]')
-
+                                           '//*[@id="div_pageContent"]/div[4]/div/div[2]/div[1]/div/div[2]/div[1]/div[2]/div/div/dl/dd[2]')
         download_btn.click()
         time.sleep(2)
 
         # go back one month
-        prev_btn = driver.find_element(By.XPATH, '//*[@id="div_pageContent"]/div[3]/div/div[2]/div[1]/div/div[2]/div[1]/div[1]/div/i[1]')
+        prev_btn = driver.find_element(By.XPATH,
+                                       '//*[@id="div_pageContent"]/div[4]/div/div[2]/div[1]/div/div[2]/div[1]/div[1]/div/i[1]')
         prev_btn.click()
         time.sleep(2)
 
