@@ -1,0 +1,23 @@
+[project]
+name = "pv-growatt-data-downloader"
+version = "0.1.0"
+description = "download data from growatt web portal using selenium and parse it into sqlite"
+authors = [
+    {name = "jorritvm",email = "jorrit.vm@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "pandas (>=3.0.1,<4.0.0)",
+    "shiny (>=1.5.1,<2.0.0)",
+    "sqlalchemy (>=2.0.47,<3.0.0)",
+    "matplotlib (>=3.10.8,<4.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)",
+    "xlrd (>=2.0.2,<3.0.0)",
+    "selenium (>=4.41.0,<5.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
